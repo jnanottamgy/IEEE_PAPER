@@ -1,0 +1,21 @@
+\usepackage{amsmath,amssymb}\usepackage{mathptmx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc,shapes.geometric,decorations.pathreplacing}
+\definecolor{ink}{HTML}{1F1F1E}
+\definecolor{muted}{HTML}{5F5E58}
+\definecolor{base}{HTML}{F3F3F1}
+\definecolor{baseedge}{HTML}{8A8980}
+\definecolor{newc}{HTML}{CDE2FB}
+\definecolor{newedge}{HTML}{1C5CAB}
+\definecolor{accent}{HTML}{EB6834}
+\definecolor{accentlt}{HTML}{FBE1D6}
+\tikzset{
+  >={Stealth[length=2.2mm]},
+  blk/.style={draw=baseedge, fill=base, rounded corners=2pt, align=center, font=\footnotesize,
+              minimum height=10mm, inner sep=3pt, line width=0.5pt},
+  newblk/.style={blk, draw=newedge, fill=newc, line width=0.8pt},
+  accblk/.style={blk, draw=accent, fill=accentlt, line width=0.8pt},
+  flow/.style={->, draw=ink, line width=0.6pt},
+  newflow/.style={->, draw=newedge, line width=0.8pt, dashed},
+  lbl/.style={font=\scriptsize, text=muted, align=center},
+}

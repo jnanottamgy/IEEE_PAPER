@@ -1,0 +1,79 @@
+\section{Implementation}
+\label{sec:impl}
+
+\subsection{Environment}
+
+The system is written in Python~3 with PyTorch~\cite{pytorch}, NumPy and pandas, and matplotlib for the charts. All experiments ran on a cloud CPU container with two virtual cores (Intel Xeon class, 2.1~GHz). Training used two worker processes with one thread each, running the (variant, seed) jobs in a fixed priority order; the script skips jobs whose result file already exists and saves a checkpoint after every epoch, so an interrupted schedule resumes where it stopped. No GPU was used, and a laptop CPU is sufficient to reproduce every run at roughly 40~s per epoch.
+
+\subsection{Hyperparameters}
+
+Table~\ref{tab:hparams} lists every setting. The backbone values are those of the official PatchTST script for ETTh1. No hyperparameter search was carried out for any variant; all variants share the same settings and training budget, so differences between them are attributable to the components being ablated and to seed variation.
+
+\begin{table}[!t]
+\centering
+\caption{Hyperparameters (Identical for All Variants)}
+\label{tab:hparams}
+\footnotesize
+\colfit{%
+\begin{tabular}{@{}ll@{}}
+\toprule
+Setting & Value \\
+\midrule
+Look-back $L$ / horizon $H$ & 336 / 96 \\
+Patch length $P$ / stride $S$ / patches $N$ & 16 / 8 / 42 \\
+Encoder layers / heads / $D$ / FFN width & 3 / 4 / 16 / 128 \\
+Dropout & 0.3 \\
+Gate hidden width / output bias init. & 32 / $+4$ \\
+Gate input clamp & $[-10,10]$ \\
+Optimizer / initial learning rate & Adam / $10^{-4}$ \\
+Learning-rate decay & $\times0.9$ per epoch after epoch 4 \\
+Batch size & 128 (last partial batch dropped) \\
+Max.\ epochs / early-stopping patience & 20 / 5 \\
+Corruption probability in training & 0.5 per window \\
+Training seeds & 2021, 2022 \\
+Validation / test corruption seeds & 777 / $4242+i$ \\
+Gate penalty $\lambda$ & 0 (not used) \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Faithfulness to the Official PatchTST}
+
+The backbone was re-implemented from the official code~\cite{patchtst_code} rather than imported, so that the gate and shift head could be inserted at the exact points shown in Fig.~\ref{fig:arch}. It reproduces instance normalization without affine parameters, end padding, patch length 16 with stride 8, the learnable position encoding initialized uniformly in $[-0.02,0.02]$, post-norm encoder layers with BatchNorm, residual attention scores and GELU, and the flatten-linear head. Three small deviations were made, all documented with the code:
+\begin{enumerate}
+\item dropout is implemented with a uniform random mask ($\mathbf{x}\odot\mathbb{1}[\mathbf{u}\ge p]/(1-p)$, $\mathbf{u}\sim\mathcal{U}(0,1)$), which is mathematically the same inverted dropout but about twice as fast on the CPU;
+\item the gate input is clamped to $[-10,10]$ to keep spikes from saturating the gate MLP;
+\item the checkpoint used for corrupted-data results is chosen by the combined criterion~\eqref{eq:select} instead of clean validation loss alone, and the clean-validation checkpoint is kept separately for the reproduction check.
+\end{enumerate}
+The training budget is also smaller than the official one (20 epochs instead of up to 100), which is discussed with the results.
+
+\subsection{Verification}
+
+Before the experiments, the pipeline was checked with the tests in Table~\ref{tab:tests}. They confirm the split sizes, that scaling uses training statistics only, that corruption is deterministic for a given seed and touches only masked positions, that parameter counts match the design, that the untrained gate starts near one, that saved weights reproduce the stored results, and that the browser port agrees with PyTorch.
+
+\begin{table*}[!t]
+\centering
+\caption{Verification Tests and Their Outcomes}
+\label{tab:tests}
+\footnotesize
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{@{}lp{0.19\textwidth}p{0.22\textwidth}p{0.18\textwidth}p{0.24\textwidth}l@{}}
+\toprule
+ID & Purpose & Input & Expected & Observed & Result \\
+\midrule
+T1 & Window counts & ETTh1, $L=336$, $H=96$ & 8,209 / 2,785 / 2,785 & 8,209 / 2,785 / 2,785 & Pass \\
+T2 & Train-only scaling & Training split & Mean 0, std 1 per variable & 0.0 and 1.0 for all 7 variables & Pass \\
+T3 & Deterministic corruption & Mixed corruption, seed 4242 twice, then 4243 & Same seed identical; different seed differs & Identical; differs & Pass \\
+T4 & Only masked values change & Missing, noise, spike, shift on 128 windows & Unmasked values unchanged & Unchanged for all four; 9.9\% altered at the 10\% level & Pass \\
+T5 & Parameter counts & A0, A4, gate & 81,728 / 82,721 / 801 & 81,728 / 82,721 / 801 & Pass \\
+T6 & Untrained gate near 1 & A4, untrained, 32 windows & $\approx0.98$ & 0.984 & Pass \\
+T7 & Saved weights reproduce results & A0 and A4, seed 2021, clean and mixed test MSE & Match result files & 0.3785/0.4491 (A0), 0.3815/0.4276 (A4) & Pass \\
+T8 & Browser port matches PyTorch & Sample windows & Max.\ difference $<10^{-5}$ & $1.7\times10^{-6}$ & Pass \\
+T9 & Baseline reproduces paper & ETTh1, $H=96$ & Within 2\% of 0.375 & 0.379 ($+1.1\%$) & Pass \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Reproducibility}
+
+All randomness is seeded. The training seed fixes model initialization, batch order and, through a separate generator offset by 1000, the training-time corruption. Corrupted evaluation sets use their own fixed seeds. The public ETTh1 file is used unchanged. Every number in Section~\ref{sec:results} is computed by script from the per-run JSON files, which also store the per-epoch training history; the tables and figures of this paper were regenerated from those files.

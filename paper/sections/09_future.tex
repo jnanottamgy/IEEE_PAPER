@@ -1,0 +1,22 @@
+\section{Future Scope}
+\label{sec:future}
+
+The limitations above point directly to the next steps, which we order from the most to the least immediate.
+
+\subsubsection{Complete the ablation and strengthen the statistics}
+Run at least five seeds per variant, complete A5 (no corruption-aware training) and A6 (gate without shift features), and test the gate penalty $\lambda$. Replace the two-seed standard deviations with confidence intervals from a moving-block bootstrap over test windows~\cite{kunsch}, which respects the overlap between neighbouring windows.
+
+\subsubsection{Broaden the benchmark}
+Repeat the protocol on ETTm1, Weather and Electricity and at horizons 192, 336 and 720, with the full training budget of the official code. Re-run DLinear~\cite{dlinear}, iTransformer~\cite{itransformer}, SEER~\cite{seer}, TFPS~\cite{tfps} and APT~\cite{apt} under the same corruption protocol so that the comparison no longer rests on a single baseline.
+
+\subsubsection{Test generalization to unseen damage}
+Hold corruption families out of training (for example, train without shift and test with it), add corruption types not modelled here such as stuck-at values, drift ramps and quantization, and evaluate on series with real logged sensor faults rather than synthetic ones.
+
+\subsubsection{Improve the gate}
+Give the gate an explicit missing-value mask where the data pipeline can supply one, add a weak auxiliary loss on synthetic corruptions that teaches it where damage is (the corruption engine already produces the mask), and let it act on the attention scores as well as the embeddings. The current result, a gate that stays near one, suggests that the forecasting loss alone gives it too little reason to discriminate.
+
+\subsubsection{Extend the shift signal}
+The two shift numbers proved the most useful addition. Richer global descriptors, such as frequency-domain statistics in the spirit of FAN~\cite{fan} or timestamp prototypes as in APT~\cite{apt}, could be passed to the head in the same cheap way, and the effect on clean accuracy should be checked across datasets.
+
+\subsubsection{Towards deployment}
+Couple the gate weights with a calibrated uncertainty estimate so that low trust in the input can be reported to an operator, and measure latency on embedded hardware typical of substation monitoring.

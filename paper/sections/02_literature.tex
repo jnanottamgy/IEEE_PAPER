@@ -1,0 +1,62 @@
+\section{Literature Review}
+\label{sec:lit}
+
+We carried out a focused narrative review. We searched arXiv, the proceedings of ICLR, ICML, NeurIPS, AAAI and KDD, and the Google Scholar and GitHub pages of the papers found, using the terms \emph{PatchTST}, \emph{patch-based forecasting}, \emph{robust time series forecasting}, \emph{distribution shift}, \emph{instance normalization}, \emph{missing values} and \emph{anomalies}, for the period 2021 to 2026. A study was kept if it builds on or compares with patch-based Transformers, if it addresses corrupted inputs or distribution shift in forecasting, or if it defines the benchmark protocol. Several 2026 entries were preprints at the time of writing. Results reported by different papers use different datasets, horizons and protocols, so we do not compare their numbers with ours.
+
+\subsection{From Sequence Transformers to Patch Tokens}
+
+The Transformer~\cite{vaswani} replaced recurrence with self-attention, and Informer~\cite{informer} was among the first to adapt it to long-sequence time-series forecasting, introducing ProbSparse attention and, with it, the ETT datasets that remain a standard benchmark. Autoformer~\cite{autoformer} built series decomposition into the network and replaced point-wise attention with an auto-correlation mechanism, and FEDformer~\cite{fedformer} moved attention into the frequency domain. Zeng \textit{et al.}~\cite{dlinear} then questioned the whole line of work: one-layer linear models with a trend-seasonal split (DLinear) outperformed these Transformers on nine benchmarks, suggesting that point-wise tokens carry too little semantic content for attention to exploit.
+
+PatchTST~\cite{patchtst} answered this by grouping consecutive time steps into patches, in the same spirit as the image patches of the Vision Transformer~\cite{vit}. A look-back of 336 steps cut into patches of 16 with stride 8 gives 42 tokens per channel, which shortens the attention span by a factor of about eight and gives each token local shape information. PatchTST also processes each channel independently with shared weights, and normalizes each input window with its own statistics. The official implementation~\cite{patchtst_code} uses BatchNorm inside the encoder~\cite{batchnorm}, GELU activations~\cite{gelu} and residual attention scores in the style of RealFormer~\cite{realformer}. On ETTh1 with look-back 336 and horizon 96, the supervised PatchTST/42 reports MSE 0.375 and MAE 0.399~\cite{patchtst}.
+
+Later models moved in several directions. TimesNet~\cite{timesnet} reshapes a series into two-dimensional period-by-phase tensors. iTransformer~\cite{itransformer} inverts the token axis and attends across variables instead of time. TimeMixer~\cite{timemixer} mixes seasonal and trend components across scales with MLPs, and xPatch~\cite{xpatch} combines patching with exponential seasonal-trend decomposition in a dual-stream CNN and MLP network. Chronos~\cite{chronos} takes the foundation-model route, scaling and quantizing values into tokens and training a language-model architecture on a large corpus for zero-shot use. The Time-Series-Library survey and benchmark~\cite{tslib,tslib_code} fixes a common protocol for these models, which we follow. All of these designs aim at accuracy on clean benchmarks; none contains a mechanism that reduces the influence of poor-quality inputs.
+
+\subsection{Normalization and Distribution Shift}
+
+A forecaster trained on one period and applied to the next faces distribution shift, a problem studied in machine learning under the names dataset shift~\cite{datasetshift} and concept drift~\cite{gama_drift}. RevIN~\cite{revin} handles it by normalizing each input window and restoring its statistics at the output, with optional learnable affine parameters. Non-stationary Transformers~\cite{nstransformer} combine such series stationarization with a de-stationary attention that reinjects the removed statistics into the attention scores, which is the closest prior idea to our shift-aware head. Dish-TS~\cite{dishts} separates the shift within the look-back window from the shift between look-back and horizon. FAN~\cite{fan} argues that mean and variance do not describe non-stationarity in the frequency domain and removes the dominant Fourier components instead. APT~\cite{apt} adds affine prototypes indexed by timestamp because, in its authors' analysis, local mean and variance miss global shift. An analysis of RevIN using PatchTST~\cite{revinrole} finds that some of its parts are redundant or even harmful, and that it does not cover all forms of shift. TS\_Adam~\cite{tsadam} changes the optimizer to cope with drift during training.
+
+Two methods react to shift more actively. TFPS~\cite{tfps} identifies patch-level distribution shift and routes patches to pattern-specific experts in the time and frequency domains. SOLID~\cite{solid} detects context-driven shift and fine-tunes the prediction layer for each test sample on similar training samples. Both pay for their adaptivity with extra experts or test-time computation.
+
+\subsection{Robustness to Corrupted Inputs}
+
+Missing values are usually handled by imputation before forecasting, with recurrent models such as BRITS~\cite{brits} or self-attention models such as SAITS~\cite{saits}; anomalies are usually handled by detection~\cite{blazquez_anomaly}. Both add a separate model with its own training and error. Several recent works instead make the forecaster itself tolerant to corruption. RobustTSF~\cite{robusttsf} analyzes forecasting when the training data contain anomalies and proposes a robust training procedure. TameR~\cite{tamer} uses global context to reduce the bias of forecasters toward recent, possibly corrupted, observations and reports gains under noise, missing values and anomalies. SEER~\cite{seer} is the closest work to ours: a Transformer framework with a channel-adaptive module and a learnable patch replacement module that filters low-quality patches, tested under missing values, shifts, anomalies and noise. SEER is a full framework, whereas we ask how much of the benefit a far smaller addition to an unchanged PatchTST can deliver. Temporal Patch Shuffle~\cite{tps} augments training data by shuffling patches and improves the robustness of several model families, PatchTST included, but at test time every patch is still trusted equally.
+
+Our evaluation design borrows from computer vision, where Hendrycks and Dietterich~\cite{hendrycks_corrupt} defined a benchmark of common corruptions at graded severities applied to the test set only. A study of Autoformer, Informer and PatchTST on synthetic signals~\cite{synthbench} similarly compares architectures under controlled noise. Training on corrupted copies of the input is a form of data augmentation, which the survey of Wen \textit{et al.}~\cite{tsaug_survey} reviews for time series.
+
+\subsection{Gating as a Soft Selection Mechanism}
+
+Multiplicative gates with sigmoid outputs are a standard way to let a network decide how much of a signal to pass. LSTM gates~\cite{lstm} control the flow of memory, gated linear units~\cite{glu} modulate convolutional features, and squeeze-and-excitation blocks~\cite{senet} rescale feature channels using a small bottleneck MLP over pooled statistics. Our reliability gate follows the last pattern most closely: a small MLP reads summary statistics of each patch and outputs a scale factor applied to that patch's embedding.
+
+\subsection{Summary and Research Gap}
+
+Table~\ref{tab:lit} summarizes the studies most relevant to this work. Shift-oriented methods change normalization or add experts, but none of them weighs inputs by their quality. The robustness-oriented methods do address corrupted inputs, each in its own way: SEER and TameR with new architectures, RobustTSF with a focus on anomalies, and TPS through augmentation at training time only. The accuracy-oriented models address neither problem. What remains untested is how far a few hundred parameters added to an unchanged PatchTST can go, and which of the possible additions actually helps; Sections~\ref{sec:method} and~\ref{sec:results} take up both questions.
+
+\begin{table*}[!t]
+\centering
+\caption{Studies Most Relevant to This Work and the Gap Each Leaves Open}
+\label{tab:lit}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}p{0.17\textwidth}p{0.36\textwidth}p{0.40\textwidth}@{}}
+\toprule
+Study (venue, year) & Approach & Relevance and limitation for this work \\
+\midrule
+SEER~\cite{seer} (ICML 2026) & Channel-adaptive module and learnable patch replacement that filters low-quality patches & Closest aim; a full new framework rather than a small add-on to PatchTST \\
+APT~\cite{apt} (AAAI 2026) & Affine prototypes indexed by timestamp for shift & Shift only; motivates giving the model global statistics \\
+TameR~\cite{tamer} (ICML 2026) & Global context against recent-data bias & Robust to noise, missing values and anomalies; no per-patch reliability score \\
+TPS~\cite{tps} (preprint, 2026) & Patch shuffling as training augmentation & Training time only; all patches trusted equally at test time \\
+RevIN analysis~\cite{revinrole} (preprint, 2026) & Ablation of RevIN components with PatchTST & Analysis only; supports adding a global view of shift \\
+TS\_Adam~\cite{tsadam} (Neurocomputing, 2026) & Optimizer modified for drift & Cannot distinguish reliable from unreliable inputs \\
+xPatch~\cite{xpatch} (AAAI 2025) & Dual-stream patching with exponential decomposition & Accuracy-oriented; no input-quality mechanism \\
+TFPS~\cite{tfps} (NeurIPS 2025) & Pattern-specific experts for patch-level shift & More parameters; targets shift rather than noise or missing data \\
+FAN~\cite{fan} (NeurIPS 2024) & Frequency adaptive normalization & Shift only; does not weigh patches by quality \\
+RobustTSF~\cite{robusttsf} (ICLR 2024) & Robust training with anomalous data & Anomalies only; not patch-based \\
+SOLID~\cite{solid} (KDD 2024) & Detect context-driven shift, fine-tune per sample & Costly at test time; our gate needs one forward pass \\
+iTransformer~\cite{itransformer}, TimeMixer~\cite{timemixer} (ICLR 2024) & Variate tokens; multiscale MLP mixing & Accuracy-oriented baselines \\
+Chronos~\cite{chronos} (TMLR 2024) & Pretrained tokenized forecaster & Large pretrained model; not a lightweight fix \\
+DLinear~\cite{dlinear} (AAAI 2023) & Linear model with decomposition & Strong simple baseline; no robustness mechanism \\
+PatchTST~\cite{patchtst} (ICLR 2023) & Patching, channel independence, instance norm. & Base model; equal trust in all patches, window-local statistics only \\
+RevIN~\cite{revin} (ICLR 2022) & Reversible instance normalization & Uses only the window's own mean and variance \\
+\bottomrule
+\end{tabular}
+\end{table*}

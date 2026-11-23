@@ -1,0 +1,60 @@
+\section{Problem Statement}
+\label{sec:problem}
+
+\subsection{Forecasting Setting}
+
+Let $\{\mathbf{s}_t\}_{t=1}^{T_{\mathrm{tot}}}$, $\mathbf{s}_t\in\R^{C}$, be a multivariate series with $C$ channels sampled at regular intervals. At time $t$ a forecaster receives the look-back window $\X=[\mathbf{s}_{t-L+1},\dots,\mathbf{s}_t]^{\top}\in\R^{L\times C}$ and predicts the next $H$ steps $\Y=[\mathbf{s}_{t+1},\dots,\mathbf{s}_{t+H}]^{\top}\in\R^{H\times C}$. In this work $C=7$, $L=336$ and $H=96$, so the model reads two weeks of hourly data and forecasts the next four days. A forecaster $f_\theta$ is trained by minimizing the mean squared error
+\begin{equation}
+\mathcal{L}(\theta)=\mathbb{E}_{(\X,\Y)}\Big[\tfrac{1}{HC}\big\lVert f_\theta(\X)-\Y\big\rVert_F^2\Big].
+\label{eq:mse}
+\end{equation}
+
+\subsection{Corrupted Inputs}
+
+In deployment the model may receive a corrupted window $\tilde{\X}=\mathcal{C}(\X;\,\kappa,\ell,\xi)$, where $\mathcal{C}$ is a corruption operator of type $\kappa$ (missing values, noise, spike, shift or a mixture), severity $\ell$, and random draw $\xi$. The location of the damage is unknown to the model; we write $\mathbf{M}\in\{0,1\}^{L\times C}$ for the mask of altered positions, which is used only for analysis. The forecast target is never corrupted: the goal is to predict the true future $\Y$ from damaged evidence $\tilde{\X}$. Section~\ref{sec:method-corrupt} defines $\mathcal{C}$ precisely.
+
+\subsection{Problem Definition}
+
+Given a PatchTST forecaster, the problem is to keep the forecast error low when the input is corrupted, with three constraints that make the result usable as a plug-in:
+\begin{enumerate}
+\item the error on clean inputs should not rise by more than 2\%;
+\item the parameter count should not rise by more than 5\%;
+\item the model must run in a single forward pass, without a separate imputation or detection model and without test-time adaptation.
+\end{enumerate}
+
+\subsection{Research Questions and Hypotheses}
+
+\textit{RQ1:} How much accuracy does a faithful PatchTST lose under controlled input corruption, and which corruption types hurt most?
+
+\textit{RQ2:} Can a reliability gate, a shift-aware head and corruption-aware training reduce that loss, and how much does each contribute?
+
+We test two hypotheses separately.
+\begin{itemize}
+\item \textbf{H1.} Together, the three components lower the test MSE of PatchTST averaged over the corrupted conditions, while the clean-data MSE changes only slightly.
+\item \textbf{H2.} The gate learns to assign lower weight to corrupted patches than to clean patches.
+\end{itemize}
+
+\subsection{Objectives and Success Criteria}
+
+Table~\ref{tab:objectives} lists the objectives and how each is measured. The numerical thresholds are practical targets we set for a lightweight add-on, not standards from the literature. The original plan to cover four datasets (ETTh1, ETTm1, Weather, Electricity) and four horizons was reduced to ETTh1 at horizon 96 because all training ran on CPUs; Section~\ref{sec:limitations} returns to this.
+
+\begin{table}[!t]
+\centering
+\caption{Objectives and Success Criteria}
+\label{tab:objectives}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\colfit{%
+\begin{tabular}{@{}p{0.06\linewidth}p{0.42\linewidth}p{0.44\linewidth}@{}}
+\toprule
+ID & Objective & Measure and target \\
+\midrule
+O1 & Re-implement PatchTST and reproduce its clean ETTh1 result & Test MSE within 2\% of the published 0.375 \\
+O2 & Build a seeded corruption benchmark & 22 conditions; identical inputs for all models \\
+O3 & Design RA-PatchTST & Parameter increase below 5\% \\
+O4 & Compare A0 with variants A1 to A4 & Mean corrupted MSE lower than A0 in every seed; clean MSE increase below 2\% \\
+O5 & Check what the gate learns & Mean gate weight on corrupted vs.\ clean patches \\
+O6 & Build an interactive demonstration & Browser port agrees with PyTorch within $10^{-5}$ \\
+\bottomrule
+\end{tabular}}
+\end{table}

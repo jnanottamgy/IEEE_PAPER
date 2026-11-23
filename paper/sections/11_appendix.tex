@@ -1,0 +1,63 @@
+\section{Results for All 22 Test Conditions}
+\label{app:full}
+
+Table~\ref{tab:full} gives the test MSE of every variant for every test condition (mean over seeds 2021 and 2022), the MAE of A0 and A4, and the relative change in MSE of A4 against A0. The per-seed values of every run are stored in the result files of the project.
+
+\begin{table*}[!t]
+\centering
+\caption{Test MSE of All Variants and MAE of A0 and A4 for Every Test Condition (Mean of Two Seeds; Lowest MSE in Bold)}
+\label{tab:full}
+\footnotesize
+\begin{tabular}{@{}lccccccccc@{}}
+\toprule
+ & \multicolumn{5}{c}{MSE} & \multicolumn{2}{c}{MAE} & \\
+\cmidrule(lr){2-6}\cmidrule(lr){7-8}
+Condition & A0 & A1 & A2 & A3 & A4 & A0 & A4 & $\Delta$MSE A4 vs.\ A0 \\
+\midrule
+\tabin{tab_full}
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Data Dictionary}
+\label{app:data}
+
+\begin{table}[!h]
+\centering
+\caption{ETTh1 Variables (Original Units Are Not Stated in the Dataset Documentation)}
+\label{tab:dict}
+\footnotesize
+\colfit{%
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+Variable & Description & Mean & Std & Min & Max \\
+\midrule
+HUFL & High useful load & 7.38 & 7.07 & $-22.71$ & 23.64 \\
+HULL & High useless load & 2.24 & 2.04 & $-4.76$ & 10.11 \\
+MUFL & Middle useful load & 4.30 & 6.83 & $-25.09$ & 17.34 \\
+MULL & Middle useless load & 0.88 & 1.81 & $-5.93$ & 7.75 \\
+LUFL & Low useful load & 3.07 & 1.16 & $-1.19$ & 8.50 \\
+LULL & Low useless load & 0.86 & 0.60 & $-1.37$ & 3.05 \\
+OT & Oil temperature (target of interest) & 13.32 & 8.57 & $-4.08$ & 46.01 \\
+\bottomrule
+\multicolumn{6}{@{}l@{}}{\scriptsize Statistics over all 17,420 records. The \texttt{date} column (hourly timestamps) is dropped before modelling.}
+\end{tabular}}
+\end{table}
+
+\section{Reproducing the Experiments}
+\label{app:repro}
+
+The experiments are reproduced with the commands below, run from the project folder with Python~3, PyTorch, NumPy, pandas and matplotlib installed.
+
+\begin{footnotesize}
+\begin{verbatim}
+python data.py data_raw/ETTh1.csv
+python train.py --variants A0 A1 A2 A3 A4 \
+  --seeds 2021 2022 --epochs 20 --patience 5
+python make_report.py
+\end{verbatim}
+\end{footnotesize}
+
+\noindent The first command checks the split shapes, the second trains and evaluates all runs, and the third writes the summary tables and chart.
+
+\noindent \texttt{run\_all.sh} contains the exact two-worker schedule that was used. The figures and tables of this paper are regenerated from the stored result files by \texttt{make\_figures.py} and \texttt{make\_tables.py} in the manuscript repository.

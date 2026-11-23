@@ -1,0 +1,75 @@
+A0: params=81728 gate=0 epochs=[20, 20] best_sel=[20, 18] best_clean=[20, 18] sec/ep=37.0 infer=5.14
+   clean-val ckpt clean MSE/MAE mean 0.3791/0.4008 per-seed [0.3785 0.3796]
+   clean                  MSE 0.3791±0.0008 MAE 0.4008  seeds [0.3785 0.3796]
+   missing (point)        MSE 0.3869±0.0013 MAE 0.4094  seeds [0.386  0.3878]
+   missing (16-stretch)   MSE 0.3922±0.0008 MAE 0.4134  seeds [0.3916 0.3928]
+   noise                  MSE 0.3842±0.0011 MAE 0.4063  seeds [0.3834 0.385 ]
+   anomaly                MSE 0.4583±0.0051 MAE 0.4670  seeds [0.4547 0.4619]
+   shift                  MSE 0.5196±0.0061 MAE 0.4955  seeds [0.524  0.5153]
+   mixed                  MSE 0.4522±0.0043 MAE 0.4644  seeds [0.4491 0.4552]
+   avg21                  MSE 0.4294±0.0006 MAE 0.4396  seeds [0.4289 0.4298]
+A1: params=81728 gate=0 epochs=[20, 20] best_sel=[17, 18] best_clean=[17, 18] sec/ep=39.0 infer=4.31
+   clean-val ckpt clean MSE/MAE mean 0.3824/0.4046 per-seed [0.3817 0.383 ]
+   clean                  MSE 0.3824±0.0009 MAE 0.4046  seeds [0.3817 0.383 ]
+   missing (point)        MSE 0.3908±0.0013 MAE 0.4126  seeds [0.3899 0.3918]
+   missing (16-stretch)   MSE 0.3951±0.0013 MAE 0.4155  seeds [0.3941 0.396 ]
+   noise                  MSE 0.3858±0.0011 MAE 0.4083  seeds [0.385  0.3865]
+   anomaly                MSE 0.4315±0.0038 MAE 0.4487  seeds [0.4288 0.4341]
+   shift                  MSE 0.4766±0.0008 MAE 0.4731  seeds [0.4772 0.476 ]
+   mixed                  MSE 0.4309±0.0030 MAE 0.4489  seeds [0.4288 0.433 ]
+   avg21                  MSE 0.4167±0.0014 MAE 0.4325  seeds [0.4157 0.4177]
+A2: params=81920 gate=0 epochs=[20, 20] best_sel=[17, 18] best_clean=[17, 18] sec/ep=39.9 infer=4.17
+   clean-val ckpt clean MSE/MAE mean 0.3817/0.4042 per-seed [0.3816 0.3818]
+   clean                  MSE 0.3817±0.0002 MAE 0.4042  seeds [0.3816 0.3818]
+   missing (point)        MSE 0.3917±0.0009 MAE 0.4139  seeds [0.391  0.3923]
+   missing (16-stretch)   MSE 0.3957±0.0009 MAE 0.4164  seeds [0.395  0.3963]
+   noise                  MSE 0.3851±0.0004 MAE 0.4078  seeds [0.3848 0.3853]
+   anomaly                MSE 0.4307±0.0036 MAE 0.4482  seeds [0.4281 0.4333]
+   shift                  MSE 0.4662±0.0015 MAE 0.4667  seeds [0.4673 0.4652]
+   mixed                  MSE 0.4307±0.0027 MAE 0.4493  seeds [0.4288 0.4326]
+   avg21                  MSE 0.4147±0.0010 MAE 0.4315  seeds [0.414  0.4154]
+A3: params=82529 gate=801 epochs=[20, 20] best_sel=[17, 18] best_clean=[17, 18] sec/ep=41.0 infer=5.49
+   clean-val ckpt clean MSE/MAE mean 0.3827/0.4041 per-seed [0.382  0.3834]
+   clean                  MSE 0.3827±0.0010 MAE 0.4041  seeds [0.382  0.3834]
+   missing (point)        MSE 0.3912±0.0016 MAE 0.4122  seeds [0.3901 0.3923]
+   missing (16-stretch)   MSE 0.3953±0.0012 MAE 0.4149  seeds [0.3944 0.3962]
+   noise                  MSE 0.3860±0.0010 MAE 0.4078  seeds [0.3852 0.3867]
+   anomaly                MSE 0.4296±0.0019 MAE 0.4468  seeds [0.4282 0.4309]
+   shift                  MSE 0.4723±0.0036 MAE 0.4712  seeds [0.4749 0.4698]
+   mixed                  MSE 0.4290±0.0012 MAE 0.4470  seeds [0.4281 0.4298]
+   avg21                  MSE 0.4156±0.0005 MAE 0.4314  seeds [0.4152 0.4159]
+A4: params=82721 gate=801 epochs=[20, 20] best_sel=[17, 18] best_clean=[17, 18] sec/ep=41.2 infer=5.13
+   clean-val ckpt clean MSE/MAE mean 0.3818/0.4037 per-seed [0.3815 0.3821]
+   clean                  MSE 0.3818±0.0004 MAE 0.4037  seeds [0.3815 0.3821]
+   missing (point)        MSE 0.3918±0.0012 MAE 0.4134  seeds [0.391  0.3926]
+   missing (16-stretch)   MSE 0.3957±0.0010 MAE 0.4157  seeds [0.3949 0.3964]
+   noise                  MSE 0.3851±0.0005 MAE 0.4073  seeds [0.3847 0.3854]
+   anomaly                MSE 0.4286±0.0021 MAE 0.4463  seeds [0.4272 0.4301]
+   shift                  MSE 0.4623±0.0032 MAE 0.4648  seeds [0.4645 0.46  ]
+   mixed                  MSE 0.4286±0.0014 MAE 0.4473  seeds [0.4276 0.4295]
+   avg21                  MSE 0.4134±0.0004 MAE 0.4303  seeds [0.4132 0.4137]
+A0 relative degradation: worst shift_10 0.7116 (+87.7% over own clean); shift group +37.1%; anomaly group +20.9%; avg21 +13.3%
+A1 relative degradation: worst shift_10 0.6066 (+58.6% over own clean); shift group +24.6%; anomaly group +12.8%; avg21 +9.0%
+A2 relative degradation: worst shift_10 0.5799 (+51.9% over own clean); shift group +22.2%; anomaly group +12.8%; avg21 +8.6%
+A3 relative degradation: worst shift_10 0.5949 (+55.5% over own clean); shift group +23.4%; anomaly group +12.2%; avg21 +8.6%
+A4 relative degradation: worst shift_10 0.5688 (+49.0% over own clean); shift group +21.1%; anomaly group +12.3%; avg21 +8.3%
+A4 better than A0 on 10/21 corrupted settings; better than A1 on 15/21
+shift_10: A0 0.7116 A1 0.6066 A4 0.5688  A4 vs A0 -20.1%  A4 vs A1 -6.2%
+anomaly_15: A0 0.5312 A1 0.4765 A4 0.4730  A4 vs A0 -11.0%  A4 vs A1 -0.7%
+mixed: A0 0.4522 A1 0.4309 A4 0.4286  A4 vs A0 -5.2%  A4 vs A1 -0.5%
+missing_15: A0 0.3980 A1 0.4026 A4 0.4052  A4 vs A0 +1.8%  A4 vs A1 +0.6%
+missingpatch_15: A0 0.4064 A1 0.4089 A4 0.4109  A4 vs A0 +1.1%  A4 vs A1 +0.5%
+gate A3 clean           frac 0.000 w_corr None w_clean 0.9562
+gate A3 missing_5       frac 0.554 w_corr 0.9527 w_clean 0.9567
+gate A3 missingpatch_5  frac 0.089 w_corr 0.9537 w_clean 0.9563
+gate A3 noise_5         frac 0.555 w_corr 0.9486 w_clean 0.9583
+gate A3 anomaly_5       frac 0.555 w_corr 0.9257 w_clean 0.9630
+gate A3 shift_3         frac 0.366 w_corr 0.9438 w_clean 0.9616
+gate A3 mixed           frac 0.921 w_corr 0.9411 w_clean 0.9629
+gate A4 clean           frac 0.000 w_corr None w_clean 0.9584
+gate A4 missing_5       frac 0.554 w_corr 0.9567 w_clean 0.9590
+gate A4 missingpatch_5  frac 0.089 w_corr 0.9547 w_clean 0.9586
+gate A4 noise_5         frac 0.555 w_corr 0.9538 w_clean 0.9603
+gate A4 anomaly_5       frac 0.555 w_corr 0.939 w_clean 0.9643
+gate A4 shift_3         frac 0.366 w_corr 0.9461 w_clean 0.9630
+gate A4 mixed           frac 0.921 w_corr 0.949 w_clean 0.9641

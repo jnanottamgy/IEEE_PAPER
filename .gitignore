@@ -1,0 +1,11 @@
+*.aux
+*.log
+*.bbl
+*.blg
+*.out
+*.toc
+*.synctex.gz
+paper/main_review.pdf
+paper/main_camera.pdf
+output/docx_build/
+__pycache__/

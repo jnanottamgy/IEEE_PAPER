@@ -1,0 +1,82 @@
+%% RA-PatchTST: IEEE manuscript.
+%% Default build: IEEE journal manuscript, single column, 12 pt (review/submission format).
+%% Camera-ready two-column build:  pdflatex "\def\cameraready{1}\input{main}"
+\ifdefined\cameraready
+  \documentclass[journal]{IEEEtran}
+\else
+  \documentclass[journal,12pt,onecolumn]{IEEEtran}
+\fi
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{textcomp}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{figures/}}
+\interdisplaylinepenalty=2500
+
+\ifdefined\cameraready
+  \newcommand{\figwidth}{\textwidth}
+  \newcommand{\colfig}{\columnwidth}
+\else
+  \newcommand{\figwidth}{0.98\textwidth}
+  \newcommand{\colfig}{0.62\textwidth}
+\fi
+
+\newcommand{\X}{\mathbf{X}}
+\newcommand{\Y}{\mathbf{Y}}
+\newcommand{\R}{\mathbb{R}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\ifdefined\cameraready
+  \newcommand{\colfit}[1]{\resizebox{\columnwidth}{!}{#1}}
+\else
+  \newcommand{\colfit}[1]{#1}
+\fi
+\makeatletter\newcommand{\tabin}[1]{\@@input tables/#1.tex }\makeatother
+\hyphenation{Patch-TST RA-Patch-TST Trans-former}
+
+\begin{document}
+
+\title{RA-PatchTST: A Reliability-Aware Extension of PatchTST for Multivariate Time-Series Forecasting Under Corrupted Inputs}
+
+\author{Jeevika~N,
+        Jnanottam~G~Y,
+        and~Mallegowda~M%
+\thanks{The authors are with the Department of Computer Science and Engineering, Ramaiah Institute of Technology, MSR Nagar, MSRIT Post, Bengaluru 560054, India. This work was carried out as part of the course Artificial Intelligence and Machine Learning (24CS52), academic year 2026--27.}}
+
+\markboth{RA-PatchTST: Reliability-Aware PatchTST Under Corrupted Inputs}%
+{N \MakeLowercase{\textit{et al.}}: RA-PatchTST: Reliability-Aware PatchTST Under Corrupted Inputs}
+
+\maketitle
+
+\input{sections/00_abstract}
+\input{sections/01_introduction}
+\input{sections/02_literature}
+\input{sections/03_problem}
+\input{sections/04_methodology}
+\input{sections/05_architecture}
+\input{sections/06_implementation}
+\input{sections/07_experiments}
+\input{sections/08_results}
+\input{sections/09_future}
+\input{sections/10_conclusion}
+
+\section*{Acknowledgment}
+The authors thank the Department of Computer Science and Engineering, Ramaiah Institute of Technology, for computing access and guidance. The ETTh1 dataset was released by Zhou \textit{et al.}~\cite{informer} through the ETDataset repository~\cite{ettdata}. The PatchTST re-implementation follows the official code of Nie \textit{et al.}~\cite{patchtst_code}, and the data protocol follows the Time-Series-Library~\cite{tslib_code}.
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\appendices
+\input{sections/11_appendix}
+
+\end{document}
