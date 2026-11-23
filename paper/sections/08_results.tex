@@ -20,7 +20,7 @@ Model & Test condition & MSE & MAE & Per-seed MSE \\
 
 \subsection{Clean-Data Reproduction (O1)}
 
-Table~\ref{tab:repro} reports the clean test error of each variant with the checkpoint chosen on clean validation loss, which is how PatchTST is usually evaluated. The baseline A0 reaches MSE 0.3791 and MAE 0.4008, against 0.375 and 0.399 published for PatchTST/42~\cite{patchtst}, a gap of 1.1\% in MSE and 0.5\% in MAE. This meets the 2\% target. The remaining gap is plausibly due to the shorter training budget: seed 2021 of A0 reached its best validation score in the last allowed epoch (Table~\ref{tab:cost}), so it had not finished improving. In every run the two checkpoint rules happened to select the same epoch, so the clean numbers in Tables~\ref{tab:headline} and~\ref{tab:repro} coincide.
+Table~\ref{tab:repro} reports the clean test error of each variant with the checkpoint chosen on clean validation loss, which is how PatchTST is usually evaluated. The baseline A0 reaches MSE 0.3791 and MAE 0.4008, against 0.375 and 0.399 published for PatchTST/42~\cite{patchtst}, a gap of 1.1\% in MSE and 0.5\% in MAE, which meets the 2\% target. The remaining gap is plausibly due to the shorter training budget: seed 2021 of A0 reached its best validation score in the last allowed epoch (Table~\ref{tab:cost}), so it had not finished improving. In every run the two checkpoint rules happened to select the same epoch, so the clean numbers in Tables~\ref{tab:headline} and~\ref{tab:repro} coincide.
 
 \begin{table}[!t]
 \centering
@@ -41,7 +41,7 @@ Variant & MSE & MAE & $\Delta$MSE vs.\ paper & $\Delta$MAE vs.\ paper \\
 
 The baseline degrades very unevenly across corruption families (first column of Table~\ref{tab:groups-mse}, Fig.~\ref{fig:groups}). Point-wise missing values, 16-step stretches and noise raise its MSE by only 0.005 to 0.013 on average, and even at 15\% the worst of them costs 7\% (missing stretches, 0.406). Spikes raise the mean MSE to 0.458 ($+20.9\%$) and segment-level shift to 0.520 ($+37.1\%$); at ten shifted segments the MSE reaches 0.712, 88\% above the clean value. Averaged over all 21 corrupted conditions the baseline loses 13.3\%.
 
-The pattern makes sense given how PatchTST processes its input. A zero in a scaled series is the training mean, which instance normalization turns into a moderate value, and Gaussian noise of one standard deviation on a few percent of the points barely changes the window statistics. A spike of 3 to 5 standard deviations, on the other hand, inflates $\sigma_c$ in~\eqref{eq:revin}, which compresses every other value of the window after normalization and then stretches the forecast when the statistics are restored. A shifted segment moves both $\mu_c$ and $\sigma_c$ and changes the local shape that the patches encode. In both cases the damage spreads, through the window statistics, to every patch of the window.
+Instance normalization explains most of this pattern. A zero in a scaled series is the training mean, which instance normalization turns into a moderate value, and Gaussian noise of one standard deviation on a few percent of the points barely changes the window statistics. A spike of 3 to 5 standard deviations, on the other hand, inflates $\sigma_c$ in~\eqref{eq:revin}, which compresses every other value of the window after normalization and then stretches the forecast when the statistics are restored. A shifted segment moves both $\mu_c$ and $\sigma_c$ and changes the local shape that the patches encode. In both cases the damage spreads, through the window statistics, to every patch of the window.
 
 \begin{table*}[!t]
 \centering
@@ -119,7 +119,7 @@ Test condition & A1 & A2 & A3 & A4 \\
 
 Training on corrupted inputs alone (A1) already gives $-3.0\%$ of the $-3.7\%$ average reduction, that is, about four fifths of the total (Table~\ref{tab:delta-a0}, Fig.~\ref{fig:ablation}). Measured against A1 (Table~\ref{tab:delta-a1}), the shift-aware head (A2) adds $-0.5\%$ on average and $-2.2\%$ under shift, the gate (A3) adds $-0.3\%$ and $-0.9\%$, and the two together (A4) add $-0.8\%$ and $-3.0\%$. The effects of the two components add up almost exactly, which suggests that they address different parts of the problem: the head corrects the level and scale of the forecast, while the gate changes which patches the encoder relies on.
 
-The shift-aware head is the more useful of the two architectural additions. This fits the analysis in the previous subsection: under shift, the information that instance normalization removes is exactly what the model needs. A2 and A4 also reach lower validation errors than A1 and A3 on both the clean and the mixed validation sets (Fig.~\ref{fig:learning}), which points to a benefit that is not limited to the test period.
+The shift-aware head is the more useful of the two architectural additions, as the analysis of RQ1 would predict: under shift the model needs the window level and scale that instance normalization removes, and the head gives them back. A2 and A4 also reach lower validation errors than A1 and A3 on both the clean and the mixed validation sets (Fig.~\ref{fig:learning}), which points to a benefit that is not limited to the test period.
 
 \begin{table}[!t]
 \centering
@@ -145,7 +145,7 @@ Test condition & A2 & A3 & A4 \\
 
 \subsection{Are the Differences Consistent Across Seeds?}
 
-Table~\ref{tab:paired} compares each variant with A1 seed by seed on the average of the 21 corrupted conditions. All three variants improve on A1 in both seeds, and A4 does so by 0.0025 and 0.0039. These differences are small. They are of the same order as the gap between the two seeds of A1 (0.0020), and with two seeds no significance can be claimed. The comparison with A0 is on firmer ground: the difference between A0 and A4 (0.016) is about 18 times the seed spread of A0 (0.0009) and 32 times that of A4 (0.0005).
+Table~\ref{tab:paired} compares each variant with A1 seed by seed on the average of the 21 corrupted conditions. All three variants improve on A1 in both seeds, and A4 does so by 0.0025 and 0.0039. These differences are small, of the same order as the gap between the two seeds of A1 (0.0020), and with two seeds no significance can be claimed. The comparison with A0 is on firmer ground: the difference between A0 and A4 (0.016) is about 18 times the seed spread of A0 (0.0009) and 32 times that of A4 (0.0005).
 
 \begin{table}[!t]
 \centering
@@ -229,13 +229,13 @@ On the fixed set of 24 test windows $\times$ 7 channels in the live laboratory, 
 \subsection{Discussion}
 
 \subsubsection{Interpretation}
-The baseline reproduces PatchTST closely and loses accuracy mainly under spikes and shift, in line with the concerns raised about window-local normalization~\cite{fan,apt,revinrole} and patch-level shift~\cite{tfps}. RA-PatchTST reduces these losses substantially. The ablation shows where the reduction comes from. Most of it is due to the training data: a PatchTST that simply sees corrupted windows during training (A1) recovers about 80\% of the gain. The architectural additions help, mostly under shift, and the more effective of them is the simplest one, two numbers appended to the head. The gate learns to discount spikes a little but does not detect missing values.
+The baseline reproduces PatchTST closely and loses accuracy mainly under spikes and shift, in line with the concerns raised about window-local normalization~\cite{fan,apt,revinrole} and patch-level shift~\cite{tfps}. RA-PatchTST reduces these losses, and most of the reduction is due to the training data: a PatchTST that simply sees corrupted windows during training (A1) recovers about 80\% of the gain. The architectural additions help, mostly under shift, and the more effective of them is the simplest one, two numbers appended to the head. The gate learns to discount spikes a little but does not detect missing values.
 
 \subsubsection{Why missing values get slightly worse}
 All corruption-aware variants are 0.7 to 1.3\% worse than A0 under missing values and on clean data. Two causes are plausible. First, capacity and training signal are shared: the model spends part of both on spikes and shift, the most damaging families, at a small cost on the mild ones. Second, the zero-filling corruption is easy for the baseline to absorb (a zero is the training mean), so there is little to gain and some precision to lose. The weak response of the gate to missing values may also have a simple cause: the zero-share feature in~\eqref{eq:gatein} is one of 23 inputs, and nothing in the loss rewards the gate for using it.
 
 \subsubsection{Practical significance}
-The extra cost is small: 993 parameters, about 11\% more training time and no measurable inference overhead. For data that are mostly clean and complete, RA-PatchTST offers little and costs a little. For sensors that are prone to spikes, recalibration jumps or regime changes, the reduction of up to 20\% at high shift severity is a meaningful gain. The model is a research prototype and has not been validated in operation.
+The extra cost is small: 993 parameters, about 11\% more training time and no measurable inference overhead. For data that are mostly clean and complete, RA-PatchTST brings almost no benefit and a slight loss of accuracy. For sensors that are prone to spikes, recalibration jumps or regime changes, the reduction of up to 20\% at high shift severity is a meaningful gain. The model is a research prototype and has not been validated in operation.
 
 \subsubsection{Limitations and threats to validity}
 \label{sec:limitations}

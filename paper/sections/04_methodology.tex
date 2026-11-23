@@ -131,7 +131,7 @@ and append them to the flattened encoder output before the head:
 \hat{\mathbf{y}}^{N}_c=\mathbf{W}'_H\big[\mathbf{h}_c;\ s^{\mu}_c;\ s^{\sigma}_c\big]+\mathbf{b}_H,\qquad \mathbf{W}'_H\in\R^{H\times(ND+2)}.
 \label{eq:shifthead}
 \end{equation}
-This adds $2H=192$ parameters. The idea is related to the de-stationary attention of Non-stationary Transformers~\cite{nstransformer}, which also reinjects removed statistics, but here they enter only the linear head. The same two numbers feed the gate.
+This adds $2H=192$ parameters. Non-stationary Transformers~\cite{nstransformer} also reinject the removed statistics, through a de-stationary attention inside the encoder; here they enter only the linear head. The same two numbers feed the gate.
 
 \subsection{Corruption Model}
 \label{sec:method-corrupt}

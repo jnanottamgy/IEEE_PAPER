@@ -29,7 +29,7 @@ Multiplicative gates with sigmoid outputs are a standard way to let a network de
 
 \subsection{Summary and Research Gap}
 
-Table~\ref{tab:lit} summarizes the studies most relevant to this work. Shift-oriented methods change normalization or add experts, but none of them weighs inputs by their quality. The robustness-oriented methods do address corrupted inputs, each in its own way: SEER and TameR with new architectures, RobustTSF with a focus on anomalies, and TPS through augmentation at training time only. The accuracy-oriented models address neither problem. What remains untested is how far a few hundred parameters added to an unchanged PatchTST can go, and which of the possible additions actually helps; Sections~\ref{sec:method} and~\ref{sec:results} take up both questions.
+Table~\ref{tab:lit} summarizes the studies most relevant to this work. Shift-oriented methods change normalization or add experts, but none of them weighs inputs by their quality. The robustness-oriented methods do address corrupted inputs, each in its own way: SEER and TameR with new architectures, RobustTSF with a focus on anomalies, and TPS through augmentation at training time only. The accuracy-oriented models address neither problem. None of them tests how far a few hundred parameters added to an unchanged PatchTST can go, or which of the possible additions helps; Sections~\ref{sec:method} and~\ref{sec:results} take up both questions.
 
 \begin{table*}[!t]
 \centering
